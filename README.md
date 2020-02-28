@@ -2,6 +2,10 @@
 
 Android OTA payload extractor written in Go.
 
+[Download](https://github.com/tobyxdd/android-ota-payload-extractor/releases)
+
+[中文](README.zh.md)
+
 ## Usage
 
 ```
