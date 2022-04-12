@@ -14,7 +14,7 @@ jobs:
         goarch: [ amd64, arm64 ]
     steps:
       - uses: actions/checkout@v3
-      - uses: wangyoucao577/go-release-action@v1
+      - uses: wangyoucao577/go-release-action@v1.25
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: ${{ matrix.goos }}
@@ -22,3 +22,5 @@ jobs:
           project_path: "."
           binary_name: "extractor"
           ldflags: "-s -w"
+          md5sum: false
+          sha256sum: true
