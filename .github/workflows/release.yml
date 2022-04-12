@@ -19,9 +19,9 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
-          goversion: "1.17"
+          goversion: "1.17.8"
           project_path: "."
-          binary_name: "extractor"
+          binary_name: "android-ota-extractor"
           ldflags: "-s -w"
           md5sum: false
           sha256sum: true
