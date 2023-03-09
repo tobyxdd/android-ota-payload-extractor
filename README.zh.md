@@ -9,14 +9,20 @@ Go 编写的 Android OTA 镜像解压工具
 ### 命令行
 
 ```
-./android-ota-payload-extractor <OTA.zip or payload.bin>
+./android-ota-payload-extractor <OTA.zip or payload.bin> [(optional) file to extract 1] [(optional) file to extract 2] ...
 ```
 
-### 拖拽
+样例（从 raven-ota.zip 解压 boot 和 vendor）：
 
-![Demo GIF](demo.gif)
+```
+./android-ota-payload-extractor.exe raven-ota.zip boot vendor
+```
 
 支持单独解压出来的 payload.bin，也支持直接用整个 ROM zip 包。
+
+如果没有指定要解压的文件，默认会解压 payload 中包含的所有文件。
+
+![Demo GIF](demo.gif)
 
 ## About
 

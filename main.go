@@ -6,11 +6,12 @@ import (
 	"compress/bzip2"
 	"encoding/binary"
 	"fmt"
-	"github.com/golang/protobuf/proto"
-	"github.com/xi2/xz"
 	"io"
 	"log"
 	"os"
+
+	"github.com/golang/protobuf/proto"
+	"github.com/xi2/xz"
 )
 
 const (
@@ -24,10 +25,11 @@ const (
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Printf("Usage: %s <input>\n", os.Args[0])
+		fmt.Printf("Usage: %s <input> [(optional) file to extract...]\n", os.Args[0])
 		os.Exit(1)
 	}
 	filename := os.Args[1]
+	extractFiles := os.Args[2:]
 	f, err := os.Open(filename)
 	if err != nil {
 		log.Fatalf("Failed to open file: %s", err)
@@ -60,7 +62,7 @@ func main() {
 		_ = zr.Close()
 		_, _ = f.Seek(0, 0)
 	}
-	parsePayload(f)
+	parsePayload(f, extractFiles)
 }
 
 func isZip(f *os.File) bool {
@@ -79,7 +81,7 @@ func findPayload(zr *zip.ReadCloser) (io.ReadCloser, error) {
 	return nil, nil
 }
 
-func parsePayload(r io.ReadSeeker) {
+func parsePayload(r io.ReadSeeker, extractFiles []string) {
 	log.Println("Parsing payload...")
 	// magic
 	magic := make([]byte, len(payloadMagic))
@@ -122,14 +124,14 @@ func parsePayload(r io.ReadSeeker) {
 	log.Printf("Block size: %d, Partition count: %d\n",
 		*manifest.BlockSize, len(manifest.Partitions))
 	// extract partitions
-	extractPartitions(&manifest, r, 24+manifestLen+uint64(metadataSigLen))
+	extractPartitions(&manifest, r, 24+manifestLen+uint64(metadataSigLen), extractFiles)
 	// done
 	log.Println("Done!")
 }
 
-func extractPartitions(manifest *DeltaArchiveManifest, r io.ReadSeeker, baseOffset uint64) {
+func extractPartitions(manifest *DeltaArchiveManifest, r io.ReadSeeker, baseOffset uint64, extractFiles []string) {
 	for _, p := range manifest.Partitions {
-		if p.PartitionName == nil {
+		if p.PartitionName == nil || (len(extractFiles) > 0 && !contains(extractFiles, *p.PartitionName)) {
 			continue
 		}
 		log.Printf("Extracting %s (%d ops) ...", *p.PartitionName, len(p.Operations))
@@ -210,4 +212,13 @@ func extractPartition(p *PartitionUpdate, outFilename string, r io.ReadSeeker, b
 				*op.Type, InstallOperation_Type_name[int32(*op.Type)])
 		}
 	}
+}
+
+func contains(ss []string, s string) bool {
+	for _, v := range ss {
+		if v == s {
+			return true
+		}
+	}
+	return false
 }
